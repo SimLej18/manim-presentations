@@ -4,3 +4,6 @@
 *.pyc
 .idea/*
 CLAUDE.md
+/build/
+/dist/
+*.egg-info

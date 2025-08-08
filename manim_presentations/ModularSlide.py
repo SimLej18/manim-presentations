@@ -17,6 +17,20 @@ class ModularSlide(Slide):
 			self.ctx = self
 			self.inner_canvas = Group()
 
+	def next_slide(self, incr=False):
+		"""
+		Override the `next_slide` method to allow incrementing the slide_number when we are in the context of a
+		Presentation. By default, incr is False, meaning that we use next_slide() more as a pause in the
+		animation of a specific slide, rather than a real step in the presentation.
+		"""
+		# Late import to avoid circular import issues
+		from manim_presentations import Presentation
+
+		if incr and type(self.ctx) is Presentation:
+			self.ctx.next_slide(incr=incr)
+		else:
+			super().next_slide()  # Default manim-slides behavior
+
 	def construct(self):
 		# N.b: if called from a Presentation, the canvas might already be added to the Presentation's canvas
 		self.add(self.inner_canvas)

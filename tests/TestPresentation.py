@@ -1,6 +1,14 @@
-from docutils.nodes import title
+"""
+Little sample presentation using manim_presentations.
+This is a test file to check that the presentation works as expected.
+It defines two chapters, each with a few basic slides.
+
+It can be run with the following commands from the root of the repository:
+`manim-slides render tests/TestPresentation.py TestPresentation`
+`manim-slides TestPresentation`
+"""
+
 from manim import *
-from manim_slides import Slide
 
 from manim_presentations import ModularSlide, Chapter, Presentation
 
@@ -51,7 +59,7 @@ class Chapter2(Chapter):
 		self.scenes = [Slide3, Slide4, Slide5]
 
 
-class MyPresentation(Presentation):
+class TestPresentation(Presentation):
 	def __init__(self):
 		super().__init__(
 			title="My Presentation",
@@ -59,6 +67,6 @@ class MyPresentation(Presentation):
 			first_author="Author",
 			other_authors=["Co-author 1", "Co-author 2"],
 			event="My Event",
-			year="2023",
+			year="2025",
 			chapters=[Chapter1(self), Chapter2(self)]
 		)

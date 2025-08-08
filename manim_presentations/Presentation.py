@@ -1,5 +1,4 @@
 from manim import *
-from manim_slides import Slide
 
 from manim_presentations import ModularSlide
 
@@ -36,6 +35,7 @@ class Presentation(ModularSlide):
 
 		# Build UI elements
 		self.chapter_bars = self.build_chapter_bars()
+		self.chapter_title = self.build_chapter_title()
 		self.current_chapter_progress = self.build_current_chapter_progress()
 		self.sub_text = self.build_sub_text()
 		self.slide_number = self.build_slide_number()
@@ -62,14 +62,39 @@ class Presentation(ModularSlide):
 				self.chapter_intro()
 
 				# Prepare chapter transition animations
+				chapter_title_anim = self.update_chapter_title(play=False)
 				chapter_bars_anim = self.update_chapter_bars(play=False)
 				progress_anim = self.update_current_chapter_progress(play=False)
 
-				self.play(slide_number_anim, progress_anim, chapter_bars_anim, run_time=0.2)
+				self.play(slide_number_anim, progress_anim, chapter_bars_anim, chapter_title_anim, run_time=0.2)
 			else:
 				# Regular slide transition within chapter
 				progress_anim = self.update_current_chapter_progress(play=False)
 				self.play(slide_number_anim, progress_anim, run_time=0.2)
+
+	def build_chapter_title(self):
+		"""Create the chapter title text element."""
+		chapter_title_text = Text(f"{self.chapters[self.current_chapter-1].chapter_short_title}",
+		                          font_size=20, color=WHITE).to_edge(UP, buff=0.15).align_to(self.chapter_bars, LEFT)
+		return chapter_title_text
+
+	def update_chapter_title(self, play=True):
+		"""Update the chapter title display."""
+		new_chapter_title_text = Text(f"{self.chapters[self.current_chapter-1].chapter_short_title}",
+		                              font_size=20, color=WHITE).to_edge(UP, buff=0.15).align_to(self.chapter_bars, LEFT)
+		if play:
+			self.play(Transform(self.chapter_title, new_chapter_title_text), run_time=0.15)
+			return None
+		else:
+			return Transform(self.chapter_title, new_chapter_title_text)
+
+	def show_chapter_title(self):
+		"""Show the chapter title text."""
+		self.chapter_title.set_opacity(1.0)
+
+	def hide_chapter_title(self):
+		"""Hide the chapter title text."""
+		self.chapter_title.set_opacity(0.0)
 
 	def build_slide_number(self):
 		"""Create the slide number text element."""
@@ -95,10 +120,10 @@ class Presentation(ModularSlide):
 
 	def build_sub_text(self):
 		"""Create the footer text with presentation metadata."""
-		title_text = Text(self.title, font_size=24)
-		first_author_text = Text(self.first_author, font_size=24, color=LIGHT_GRAY)
-		event_text = Text(self.event, font_size=24, slant=ITALIC) if self.event else None
-		year_text = Text(self.year, font_size=24) if self.year else None
+		title_text = Text(self.title, font_size=20)
+		first_author_text = Text(self.first_author, font_size=20, color=LIGHT_GRAY)
+		event_text = Text(self.event, font_size=20, slant=ITALIC) if self.event else None
+		year_text = Text(self.year, font_size=20) if self.year else None
 
 		elements = [elem for elem in [title_text, first_author_text, event_text, year_text] if elem is not None]
 		sub_text = VGroup(*elements).arrange(RIGHT, buff=0.25).to_corner(DL, buff=0.15)
@@ -135,7 +160,7 @@ class Presentation(ModularSlide):
 			chapter_bars.add(self.build_chapter_bar(bar_width))
 
 		# Position at the top of the screen
-		chapter_bars.arrange(RIGHT, buff=self.bar_padding).to_edge(UP, buff=0.15)
+		chapter_bars.arrange(RIGHT, buff=self.bar_padding).to_edge(UP, buff=.5)
 		return chapter_bars
 
 	def update_chapter_bars(self, play=True):
@@ -255,6 +280,7 @@ class Presentation(ModularSlide):
 	def chapter_intro(self):
 		"""Display chapter introduction with UI transitions."""
 		# Hide UI elements during chapter transition
+		self.hide_chapter_title()
 		self.hide_chapter_bars()
 		self.hide_current_chapter_progress()
 		self.hide_sub_text()
@@ -272,6 +298,7 @@ class Presentation(ModularSlide):
 			self.current_chapter_progress.become(new_progress)
 
 		# Restore UI elements
+		self.show_chapter_title()
 		self.show_chapter_bars()
 		self.show_current_chapter_progress()
 		self.show_sub_text()
@@ -295,7 +322,11 @@ class Presentation(ModularSlide):
 		self.presentation_intro()
 
 		# Add persistent UI elements to foreground
-		self.add_foreground_mobjects(self.chapter_bars, self.current_chapter_progress, self.sub_text, self.slide_number)
+		self.add_foreground_mobjects(self.chapter_title,
+		                             self.chapter_bars,
+		                             self.current_chapter_progress,
+		                             self.sub_text,
+		                             self.slide_number)
 
 		# Show first chapter introduction
 		self.chapter_intro()

@@ -1,3 +1,6 @@
 /media/
 /slides/
-/MyPresentation.py
+/tests/TestPresentation.py
+*.pyc
+.idea/*
+CLAUDE.md

@@ -68,5 +68,17 @@ class TestPresentation(Presentation):
 			other_authors=["Co-author 1", "Co-author 2"],
 			event="My Event",
 			year="2025",
-			chapters=[Chapter1(self), Chapter2(self)]
+			chapters=[Chapter1(), Chapter2()]
+		)
+
+class TestPresentation2(Presentation):
+	def __init__(self):
+		super().__init__(
+			title="My Presentation",
+			subtitle="Subtitle",
+			first_author="Author",
+			other_authors=["Co-author 1", "Co-author 2"],
+			event="My Event",
+			year="2025",
+			chapters=[]
 		)

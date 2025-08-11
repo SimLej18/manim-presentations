@@ -5,7 +5,7 @@ from manim_presentations import ModularSlide
 
 
 class Chapter(ModularSlide):
-	def __init__(self, ctx=None, chapter_nb=1, chapter_title="Chapter", chapter_short_title="Chapter"):
+	def __init__(self, ctx=None, chapter_title="Chapter", chapter_short_title="Chapter"):
 		if ctx:
 			# update self so that methods of the parent Presentation class have priority
 			self.ctx = ctx
@@ -16,7 +16,6 @@ class Chapter(ModularSlide):
 		super().__init__(self.ctx)
 
 		self.scenes = []
-		self.chapter_nb = chapter_nb
 		self.chapter_title = chapter_title
 		self.chapter_short_title = chapter_short_title
 

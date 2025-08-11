@@ -23,7 +23,11 @@ class Presentation(ModularSlide):
 		self.other_authors = other_authors if other_authors is not None else []
 		self.event = event
 		self.year = year
+		if chapters is None:
+			raise ValueError("Presentation must contain at least one chapter")
 		self.chapters = chapters if chapters is not None else []
+		for chapter in self.chapters:
+			chapter.ctx = self  # Assign presentation as context of the chapter
 		self.current_chapter = 1
 		self.current_slide = 1
 		self.current_slide_in_chapter = 1

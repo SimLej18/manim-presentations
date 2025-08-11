@@ -13,11 +13,15 @@ class Presentation(ModularSlide):
 	- Automatic slide numbering and metadata display
 	"""
 
-	def __init__(self, title="My Presentation", subtitle="Subtitle", first_author="Author", other_authors=None,
+	def __init__(self, title="My Presentation", short_title=None, subtitle="Subtitle", first_author="Author", other_authors=None,
 	             event=None, year=None, chapters=None):
 		super().__init__(self)
 
 		self.title = title
+		if short_title is not None:
+			self.short_title = short_title
+		else:
+			self.short_title = title.replace("\n", "")[:35]+"..."
 		self.subtitle = subtitle
 		self.first_author = first_author
 		self.other_authors = other_authors if other_authors is not None else []
@@ -124,7 +128,7 @@ class Presentation(ModularSlide):
 
 	def build_sub_text(self):
 		"""Create the footer text with presentation metadata."""
-		title_text = Text(self.title, font_size=20)
+		title_text = Text(self.short_title, font_size=20)
 		first_author_text = Text(self.first_author, font_size=20, color=LIGHT_GRAY)
 		event_text = Text(self.event, font_size=20, slant=ITALIC) if self.event else None
 		year_text = Text(self.year, font_size=20) if self.year else None
@@ -253,13 +257,13 @@ class Presentation(ModularSlide):
 
 	def build_presentation_intro(self):
 		"""Create the presentation title slide content."""
-		title_text = Text(self.title, font_size=48, color=WHITE)
+		title_text = Paragraph(self.title, alignment="center", font_size=48, color=WHITE)
 		subtitle_text = Text(self.subtitle, font_size=36, color=WHITE)
-		authors_full_str = self.first_author + (", " + ", ".join(self.other_authors) if self.other_authors else "")
+		authors_full_str = self.first_author + ((", " + ", ".join(self.other_authors)) if self.other_authors else "")
 		authors_text = Text(authors_full_str, font_size=24, color=LIGHT_GRAY,
-		                    t2w={self.first_author: SEMIBOLD}) if self.other_authors else None
+		                    t2w={self.first_author: SEMIBOLD})
 
-		all_elems = VGroup(title_text, subtitle_text, authors_text).arrange(DOWN, buff=0.2)
+		all_elems = VGroup(title_text, subtitle_text, authors_text).arrange(DOWN, buff=1)
 		return all_elems
 
 	def build_chapter_intro(self):
@@ -274,9 +278,9 @@ class Presentation(ModularSlide):
 	def build_presentation_conclusion(self):
 		"""Create the presentation conclusion slide content."""
 		conclusion_text = Text("Thank you for your attention!", font_size=36, color=WHITE)
-		authors_full_str = self.first_author + (", " + ", ".join(self.other_authors) if self.other_authors else "")
+		authors_full_str = self.first_author + ((", " + ", ".join(self.other_authors)) if self.other_authors else "")
 		authors_text = Text(authors_full_str, font_size=24, color=LIGHT_GRAY,
-		                    t2w={self.first_author: SEMIBOLD}) if self.other_authors else None
+		                    t2w={self.first_author: SEMIBOLD})
 
 		all_elems = VGroup(conclusion_text, authors_text).arrange(DOWN, buff=0.2)
 		return all_elems

@@ -71,7 +71,7 @@ class TestPresentation(Presentation):
 			chapters=[Chapter1(), Chapter2()]
 		)
 
-class TestPresentation2(Presentation):
+class TestPresentation2(Presentation):  # Try empty presentation
 	def __init__(self):
 		super().__init__(
 			title="My Presentation",
@@ -81,4 +81,16 @@ class TestPresentation2(Presentation):
 			event="My Event",
 			year="2025",
 			chapters=[]
+		)
+
+class TestPresentation3(Presentation):  # Try without other_authors and with long title
+	def __init__(self):
+		super().__init__(
+			title="An extremely long title that would\n definitely not fit at\n the bottom ot the slide",
+			subtitle="Subtitle",
+			first_author="Author",
+			other_authors=[],
+			event="My Event",
+			year="2025",
+			chapters=[Chapter1()]
 		)

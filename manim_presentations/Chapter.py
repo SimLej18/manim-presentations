@@ -31,7 +31,7 @@ class Chapter(ModularSlide):
 			scene.setup(ctx)
 			scene.construct(ctx)
 			if i < len(self.scenes) - 1:
-				ctx.next_slide()
+				ctx.next_slide(incr=True)
 				scene.tear_down(ctx)
 
 	def tear_down(self):

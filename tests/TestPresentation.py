@@ -14,6 +14,8 @@ from manim_presentations import ModularSlide, Chapter, Presentation
 
 
 class Slide1(ModularSlide):
+	notes = """This is a test note to see if it appears in the render."""
+
 	def construct(self):
 		content = Text("This is the first slide of chapter 1", font_size=48)
 		self.inner_canvas.add(content)
@@ -35,6 +37,8 @@ class Slide3(ModularSlide):
 
 
 class Slide4(ModularSlide):
+	notes = """Another test note to see if it appears in the render."""
+
 	def construct(self):
 		content = Text("This is the second slide of chapter 2", font_size=48)
 		self.inner_canvas.add(content)

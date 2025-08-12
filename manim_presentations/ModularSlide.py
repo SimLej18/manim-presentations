@@ -7,9 +7,10 @@ class ModularSlide(Slide):
 	Abstract class for a modular slide. Extend it with a construct() method to build your slide.
 	"""
 	skip_reversing = True
+	notes = None
 
-	def __init__(self, ctx=None):
-		super().__init__()
+	def __init__(self, ctx=None, **kwargs):
+		super().__init__(**kwargs)  # TODO: Check if the `renderer` kwarg is similar to our `ctx` parameter
 		if ctx:
 			# update self so that methods of the parent Presentation class have priority
 			self.ctx = ctx
@@ -17,7 +18,7 @@ class ModularSlide(Slide):
 			self.ctx = self
 			self.inner_canvas = Group()
 
-	def next_slide(self, incr=False):
+	def next_slide(self, incr=False, **kwargs):
 		"""
 		Override the `next_slide` method to allow incrementing the slide_number when we are in the context of a
 		Presentation. By default, incr is False, meaning that we use next_slide() more as a pause in the
@@ -27,9 +28,9 @@ class ModularSlide(Slide):
 		from manim_presentations import Presentation
 
 		if incr and type(self.ctx) is Presentation:
-			self.ctx.next_slide(incr=incr)
+			self.ctx.next_slide(incr=incr, **kwargs)
 		else:
-			super().next_slide()  # Default manim-slides behavior
+			super().next_slide(**kwargs)  # Default manim-slides behavior
 
 	def construct(self):
 		# N.b: if called from a Presentation, the canvas might already be added to the Presentation's canvas

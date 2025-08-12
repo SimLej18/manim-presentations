@@ -48,16 +48,17 @@ class Presentation(ModularSlide):
 		self.sub_text = self.build_sub_text()
 		self.slide_number = self.build_slide_number()
 
-	def next_slide(self, incr=True):
+	def next_slide(self, incr=True, **kwargs):
 		"""Advance to the next slide and update progress indicators."""
-		super().next_slide()
+		slide_number_anim, progress_anim, chapter_bars_anim, chapter_title_anim = None, None, None, None
+		update_chapter = False
 
 		if incr:
 			self.current_slide += 1
 			self.current_slide_in_chapter += 1
 
 			# Prepare animations for UI updates
-			slide_number_anim = self.update_slide_number(play=False)
+			slide_number_anim = self.update_slide_number(return_animation=True)
 
 			# Check if we've reached the end of the current chapter
 			if self.current_chapter < len(self.chapters) and self.current_slide_in_chapter == len(
@@ -67,18 +68,35 @@ class Presentation(ModularSlide):
 				self.current_slide_in_chapter = 1
 
 				# Show chapter introduction
-				self.chapter_intro()
+				update_chapter = True
 
 				# Prepare chapter transition animations
-				chapter_title_anim = self.update_chapter_title(play=False)
-				chapter_bars_anim = self.update_chapter_bars(play=False)
-				progress_anim = self.update_current_chapter_progress(play=False)
-
-				self.play(slide_number_anim, progress_anim, chapter_bars_anim, chapter_title_anim, run_time=0.2)
+				chapter_title_anim = self.update_chapter_title(return_animation=True)
+				chapter_bars_anim = self.update_chapter_bars(return_animation=True)
+				progress_anim = self.update_current_chapter_progress(return_animation=True)
 			else:
 				# Regular slide transition within chapter
-				progress_anim = self.update_current_chapter_progress(play=False)
-				self.play(slide_number_anim, progress_anim, run_time=0.2)
+				progress_anim = self.update_current_chapter_progress(return_animation=True)
+				chapter_bars_anim = None
+				chapter_title_anim = None
+
+		# Recover current slide notes if they exist
+		current_slide = self.chapters[self.current_chapter - 1].scenes[self.current_slide_in_chapter - 1]
+		if hasattr(current_slide, 'notes') and current_slide.notes:
+			print(f"Next slide notes: {current_slide.notes}")
+			kwargs['notes'] = current_slide.notes
+
+		# Trigger next slide
+		super().next_slide(**kwargs)
+
+		# Update chapter title if we moved to a new chapter
+		if update_chapter:
+			self.chapter_intro()
+
+		# Now, play the animations
+		animations_to_play = [anim for anim in [slide_number_anim, progress_anim, chapter_bars_anim, chapter_title_anim] if anim is not None]
+		if animations_to_play:
+			self.play(*animations_to_play, run_time=0.2)
 
 	def build_chapter_title(self):
 		"""Create the chapter title text element."""
@@ -86,11 +104,11 @@ class Presentation(ModularSlide):
 		                          font_size=20, color=WHITE).to_edge(UP, buff=0.15).align_to(self.chapter_bars, LEFT)
 		return chapter_title_text
 
-	def update_chapter_title(self, play=True):
+	def update_chapter_title(self, return_animation=False):
 		"""Update the chapter title display."""
 		new_chapter_title_text = Text(f"{self.chapters[self.current_chapter-1].chapter_short_title}",
 		                              font_size=20, color=WHITE).to_edge(UP, buff=0.15).align_to(self.chapter_bars, LEFT)
-		if play:
+		if not return_animation:
 			self.play(Transform(self.chapter_title, new_chapter_title_text), run_time=0.15)
 			return None
 		else:
@@ -109,10 +127,10 @@ class Presentation(ModularSlide):
 		slide_nb_text = Text(f"{self.current_slide}", font_size=24, color=LIGHT_GRAY).to_corner(DR, buff=0.15)
 		return slide_nb_text
 
-	def update_slide_number(self, play=True):
+	def update_slide_number(self, return_animation=True):
 		"""Update the slide number display."""
 		new_slide_nb_text = Text(f"{self.current_slide}", font_size=24, color=LIGHT_GRAY).to_corner(DR, buff=0.15)
-		if play:
+		if not return_animation:
 			self.play(Transform(self.slide_number, new_slide_nb_text), run_time=0.15)
 			return None
 		else:
@@ -171,10 +189,10 @@ class Presentation(ModularSlide):
 		chapter_bars.arrange(RIGHT, buff=self.bar_padding).to_edge(UP, buff=.5)
 		return chapter_bars
 
-	def update_chapter_bars(self, play=True):
+	def update_chapter_bars(self, return_animation=True):
 		"""Highlight the current chapter bar."""
 		current_bar = self.chapter_bars[self.current_chapter - 1]
-		if play:
+		if not return_animation:
 			self.play(current_bar.animate.set_fill(opacity=1.0), run_time=0.15)
 			return None
 		else:
@@ -214,7 +232,7 @@ class Presentation(ModularSlide):
 
 		return progress_bar
 
-	def update_current_chapter_progress(self, play=True):
+	def update_current_chapter_progress(self, return_animation=True):
 		"""Update the width of the current chapter progress bar."""
 		if not self.chapters or not self.current_chapter_progress:
 			return None
@@ -239,7 +257,7 @@ class Presentation(ModularSlide):
 		new_progress_bar.move_to(current_chapter_bar.get_center())
 		new_progress_bar.align_to(current_chapter_bar, LEFT)
 
-		if play:
+		if not return_animation:
 			self.play(Transform(self.current_chapter_progress, new_progress_bar), run_time=0.15)
 			return None
 		else:

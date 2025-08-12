@@ -14,7 +14,7 @@ class Presentation(ModularSlide):
 	"""
 
 	def __init__(self, title="My Presentation", short_title=None, subtitle="Subtitle", first_author="Author", other_authors=None,
-	             event=None, year=None, chapters=None):
+	             event=None, year=None, chapters=None, title_color=WHITE, chapter_color=WHITE):
 		super().__init__(self)
 
 		self.title = title
@@ -37,6 +37,10 @@ class Presentation(ModularSlide):
 		self.current_slide_in_chapter = 1
 		self.inner_canvas = Group()  # Initialize the canvas for the presentation
 
+		# Styling
+		self.title_color = title_color
+		self.chapter_color = chapter_color
+
 		# Progress bar styling
 		self.bar_height = 0.05  # Height of the progress bar
 		self.bar_padding = 0.25  # Padding around the progress bar
@@ -48,7 +52,7 @@ class Presentation(ModularSlide):
 		self.sub_text = self.build_sub_text()
 		self.slide_number = self.build_slide_number()
 
-	def next_slide(self, incr=True, **kwargs):
+	def next_slide(self, incr=False, **kwargs):
 		"""Advance to the next slide and update progress indicators."""
 		slide_number_anim, progress_anim, chapter_bars_anim, chapter_title_anim = None, None, None, None
 		update_chapter = False
@@ -81,10 +85,11 @@ class Presentation(ModularSlide):
 				chapter_title_anim = None
 
 		# Recover current slide notes if they exist
-		current_slide = self.chapters[self.current_chapter - 1].scenes[self.current_slide_in_chapter - 1]
-		if hasattr(current_slide, 'notes') and current_slide.notes:
-			print(f"Next slide notes: {current_slide.notes}")
-			kwargs['notes'] = current_slide.notes
+		if self.current_chapter - 1 < len(self.chapters) and \
+			self.current_slide_in_chapter - 1 < len(self.chapters[self.current_chapter - 1].scenes):
+			current_slide = self.chapters[self.current_chapter - 1].scenes[self.current_slide_in_chapter - 1]
+			if hasattr(current_slide, 'notes') and current_slide.notes:
+				kwargs['notes'] = current_slide.notes
 
 		# Trigger next slide
 		super().next_slide(**kwargs)
@@ -101,13 +106,13 @@ class Presentation(ModularSlide):
 	def build_chapter_title(self):
 		"""Create the chapter title text element."""
 		chapter_title_text = Text(f"{self.chapters[self.current_chapter-1].chapter_short_title}",
-		                          font_size=20, color=WHITE).to_edge(UP, buff=0.15).align_to(self.chapter_bars, LEFT)
+		                          font_size=20, color=self.title_color).to_edge(UP, buff=0.15).align_to(self.chapter_bars, LEFT)
 		return chapter_title_text
 
 	def update_chapter_title(self, return_animation=False):
 		"""Update the chapter title display."""
 		new_chapter_title_text = Text(f"{self.chapters[self.current_chapter-1].chapter_short_title}",
-		                              font_size=20, color=WHITE).to_edge(UP, buff=0.15).align_to(self.chapter_bars, LEFT)
+		                              font_size=20, color=self.title_color).to_edge(UP, buff=0.15).align_to(self.chapter_bars, LEFT)
 		if not return_animation:
 			self.play(Transform(self.chapter_title, new_chapter_title_text), run_time=0.15)
 			return None
@@ -124,12 +129,12 @@ class Presentation(ModularSlide):
 
 	def build_slide_number(self):
 		"""Create the slide number text element."""
-		slide_nb_text = Text(f"{self.current_slide}", font_size=24, color=LIGHT_GRAY).to_corner(DR, buff=0.15)
+		slide_nb_text = Text(f"{self.current_slide}", font_size=24, color=self.title_color).to_corner(DR, buff=0.15)
 		return slide_nb_text
 
 	def update_slide_number(self, return_animation=True):
 		"""Update the slide number display."""
-		new_slide_nb_text = Text(f"{self.current_slide}", font_size=24, color=LIGHT_GRAY).to_corner(DR, buff=0.15)
+		new_slide_nb_text = Text(f"{self.current_slide}", font_size=24, color=self.title_color).to_corner(DR, buff=0.15)
 		if not return_animation:
 			self.play(Transform(self.slide_number, new_slide_nb_text), run_time=0.15)
 			return None
@@ -138,7 +143,7 @@ class Presentation(ModularSlide):
 
 	def show_slide_number(self):
 		"""Show the slide number text."""
-		self.slide_number.set_opacity(1.0)
+		self.slide_number.set_opacity(0.7)
 
 	def hide_slide_number(self):
 		"""Hide the slide number text."""
@@ -146,10 +151,10 @@ class Presentation(ModularSlide):
 
 	def build_sub_text(self):
 		"""Create the footer text with presentation metadata."""
-		title_text = Text(self.short_title, font_size=20)
-		first_author_text = Text(self.first_author, font_size=20, color=LIGHT_GRAY)
-		event_text = Text(self.event, font_size=20, slant=ITALIC) if self.event else None
-		year_text = Text(self.year, font_size=20) if self.year else None
+		title_text = Text(self.short_title, font_size=16, color=self.title_color)
+		first_author_text = Text(self.first_author, font_size=16, color=self.title_color, weight=SEMIBOLD)
+		event_text = Text(self.event, font_size=16, color=self.title_color, slant=ITALIC) if self.event else None
+		year_text = Text(self.year, font_size=16, color=self.title_color) if self.year else None
 
 		elements = [elem for elem in [title_text, first_author_text, event_text, year_text] if elem is not None]
 		sub_text = VGroup(*elements).arrange(RIGHT, buff=0.25).to_corner(DL, buff=0.15)
@@ -158,7 +163,7 @@ class Presentation(ModularSlide):
 
 	def show_sub_text(self):
 		"""Show the footer text."""
-		self.sub_text.set_opacity(1.0)
+		self.sub_text.set_opacity(0.7)
 
 	def hide_sub_text(self):
 		"""Hide the footer text."""
@@ -171,7 +176,7 @@ class Presentation(ModularSlide):
 			height=self.bar_height,
 			corner_radius=self.bar_height / 2,
 			fill_opacity=0.5,
-			fill_color=WHITE,
+			fill_color=self.chapter_color,
 			stroke_width=0
 		)
 
@@ -275,30 +280,30 @@ class Presentation(ModularSlide):
 
 	def build_presentation_intro(self):
 		"""Create the presentation title slide content."""
-		title_text = Paragraph(self.title, alignment="center", font_size=48, color=WHITE)
-		subtitle_text = Text(self.subtitle, font_size=36, color=WHITE)
+		title_text = Paragraph(self.title, alignment="center", font_size=48, color=self.title_color)
+		subtitle_text = Text(self.subtitle, font_size=36, color=self.title_color)
 		authors_full_str = self.first_author + ((", " + ", ".join(self.other_authors)) if self.other_authors else "")
-		authors_text = Text(authors_full_str, font_size=24, color=LIGHT_GRAY,
-		                    t2w={self.first_author: SEMIBOLD})
+		authors_text = Text(authors_full_str, font_size=24, color=self.title_color,
+		                    t2w={self.first_author: SEMIBOLD}).set_opacity(0.7)
 
 		all_elems = VGroup(title_text, subtitle_text, authors_text).arrange(DOWN, buff=1)
 		return all_elems
 
 	def build_chapter_intro(self):
 		"""Create the chapter introduction slide content."""
-		chapter_title_text = Text(self.chapters[self.current_chapter - 1].chapter_title, font_size=36, color=WHITE)
+		chapter_title_text = Text(self.chapters[self.current_chapter - 1].chapter_title, font_size=36, color=self.title_color)
 		chapter_short_title_text = Text(self.chapters[self.current_chapter - 1].chapter_short_title, font_size=24,
-		                                color=LIGHT_GRAY)
+		                                color=self.title_color).set_opacity(0.7)
 
 		all_elems = VGroup(chapter_title_text, chapter_short_title_text).arrange(DOWN, buff=0.2)
 		return all_elems
 
 	def build_presentation_conclusion(self):
 		"""Create the presentation conclusion slide content."""
-		conclusion_text = Text("Thank you for your attention!", font_size=36, color=WHITE)
+		conclusion_text = Text("Thank you for your attention!", font_size=36, color=self.title_color)
 		authors_full_str = self.first_author + ((", " + ", ".join(self.other_authors)) if self.other_authors else "")
-		authors_text = Text(authors_full_str, font_size=24, color=LIGHT_GRAY,
-		                    t2w={self.first_author: SEMIBOLD})
+		authors_text = Text(authors_full_str, font_size=24, color=self.title_color,
+		                    t2w={self.first_author: SEMIBOLD}).set_opacity(0.7)
 
 		all_elems = VGroup(conclusion_text, authors_text).arrange(DOWN, buff=0.2)
 		return all_elems

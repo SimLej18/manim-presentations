@@ -18,6 +18,23 @@ class Chapter(ModularSlide):
 		self.scenes = []
 		self.chapter_title = chapter_title
 		self.chapter_short_title = chapter_short_title
+		self.current_scene_index = 0  # To track the current scene index
+
+	def next_slide(self, incr=False, **kwargs):
+		"""
+		Override the `next_slide` method to allow incrementing the slide_number when we are in the context of a
+		Presentation. By default, incr is False, meaning that we use next_slide() more as a pause in the
+		animation of a specific slide, rather than a real step in the presentation.
+		"""
+		self.wait(0.1)
+		# Late import to avoid circular import issues
+		from manim_presentations import Presentation
+
+		if incr and type(self.ctx) is Presentation:
+			self.ctx.next_slide(incr=incr, **kwargs)
+		else:
+			super().next_slide(**kwargs)  # Default manim-slides behavior
+
 
 	def setup(self):
 		pass
@@ -25,15 +42,18 @@ class Chapter(ModularSlide):
 	def construct(self):
 		ctx = self.ctx
 
-		ctx.add(ctx.inner_canvas)
-
 		for i, scene in enumerate(self.scenes):
+			self.current_scene_index = i
 			scene.setup(ctx)
 			scene.construct(ctx)
-			if i < len(self.scenes) - 1:
-				ctx.next_slide(incr=True)
-				scene.tear_down(ctx)
+			ctx.next_slide(incr=True)
+			scene.tear_down(ctx)
+
 
 	def tear_down(self):
 		# By default, clear the canvas after the chapter is done
-		self.ctx.inner_canvas.remove(*self.ctx.inner_canvas.submobjects)
+		# print("Clearing canvas for chapter", self.chapter_title)
+		# print(f"Content: {self.inner_canvas.submobjects}")
+		# print(f"Content: {self.ctx.inner_canvas.submobjects}")
+		# print(f"{self.__dict__}")
+		self.ctx.remove(*self.ctx.inner_canvas.submobjects)

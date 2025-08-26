@@ -24,6 +24,7 @@ class ModularSlide(Slide):
 		Presentation. By default, incr is False, meaning that we use next_slide() more as a pause in the
 		animation of a specific slide, rather than a real step in the presentation.
 		"""
+		self.wait(0.1)
 		# Late import to avoid circular import issues
 		from manim_presentations import Presentation
 
@@ -38,4 +39,5 @@ class ModularSlide(Slide):
 
 	def tear_down(self):
 		# By default, clear the canvas after the slide is done
-		self.inner_canvas.remove(*self.inner_canvas.submobjects)
+		# print(f"Clearing canvas for {self.__class__.__name__}, content: {self.inner_canvas.submobjects}")
+		self.remove(*self.inner_canvas.submobjects)

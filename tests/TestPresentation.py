@@ -19,21 +19,25 @@ class Slide1(ModularSlide):
 	def construct(self):
 		content = Text("This is the first slide of chapter 1", font_size=48)
 		self.inner_canvas.add(content)
-		self.play(Write(content))
+		self.play(Write(content), run_time=0.25)
+		self.next_slide()
+		following = Text("It even has a second line!", font_size=36).next_to(content, DOWN, buff=0.5)
+		self.inner_canvas.add(following)
+		self.play(Write(following), run_time=0.25)
 
 
 class Slide2(ModularSlide):
 	def construct(self):
 		content = Text("This is the second slide of chapter 1", font_size=48)
 		self.inner_canvas.add(content)
-		self.play(Write(content))
+		self.play(Write(content), run_time=0.25)
 
 
 class Slide3(ModularSlide):
 	def construct(self):
 		content = Text("This is the first slide of chapter 2", font_size=48)
 		self.inner_canvas.add(content)
-		self.play(Write(content))
+		self.play(Write(content), run_time=0.25)
 
 
 class Slide4(ModularSlide):
@@ -42,24 +46,32 @@ class Slide4(ModularSlide):
 	def construct(self):
 		content = Text("This is the second slide of chapter 2", font_size=48)
 		self.inner_canvas.add(content)
-		self.play(Write(content))
+		self.play(Write(content), run_time=0.25)
+		self.next_slide()
+		following_1 = Text("It even has a second line!", font_size=36).next_to(content, DOWN, buff=0.5)
+		self.inner_canvas.add(following_1)
+		self.play(Write(following_1), run_time=0.25)
+		self.next_slide()
+		following_2 = Text("And a third one!", font_size=36).next_to(following_1, DOWN, buff=0.5)
+		self.inner_canvas.add(following_2)
+		self.play(Write(following_2), run_time=0.25)
 
 class Slide5(ModularSlide):
 	def construct(self):
 		content = Text("This is the third slide of chapter 2", font_size=48)
 		self.inner_canvas.add(content)
-		self.play(Write(content))
+		self.play(Write(content), run_time=0.25)
 
 
 class Chapter1(Chapter):
-	def __init__(self, presentation=None):
-		super().__init__(presentation)
+	def __init__(self, chapter_title="Chapter 1: Where it all begins", chapter_short_title="Chapter 1", presentation=None):
+		super().__init__(ctx=presentation, chapter_title=chapter_title, chapter_short_title=chapter_short_title)
 		self.scenes = [Slide1, Slide2]
 
 
 class Chapter2(Chapter):
-	def __init__(self, presentation=None):
-		super().__init__(presentation)
+	def __init__(self, chapter_title="Chapter 2: Where everything comes to an end", chapter_short_title="Chapter 2", presentation=None):
+		super().__init__(ctx=presentation, chapter_title=chapter_title, chapter_short_title=chapter_short_title)
 		self.scenes = [Slide3, Slide4, Slide5]
 
 

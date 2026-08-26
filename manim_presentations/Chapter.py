@@ -1,59 +1,30 @@
-from manim import *
-from manim_slides import Slide
-
-from manim_presentations import ModularSlide
+from dataclasses import dataclass, field
 
 
-class Chapter(ModularSlide):
-	def __init__(self, ctx=None, chapter_title="Chapter", chapter_short_title="Chapter"):
-		if ctx:
-			# update self so that methods of the parent Presentation class have priority
-			self.ctx = ctx
-		else:
-			self.ctx = self
-			self.inner_canvas = Group()
+@dataclass
+class Chapter:
+	"""
+	An ordered group of `SlideUnit` instances, rendered as one Manim Scene.
 
-		super().__init__(self.ctx)
+	`name` is the Scene name: it is what you pass to `manim-slides render`,
+	so it must be a valid Python identifier and unique within the deck.
+	"""
 
-		self.scenes = []
-		self.chapter_title = chapter_title
-		self.chapter_short_title = chapter_short_title
-		self.current_scene_index = 0  # To track the current scene index
+	name: str
+	title: str
+	short_title: str = None
+	units: list = field(default_factory=list)
+	intro: bool = True
+	"""Whether the chapter opens on a title card. Set to False to start straight
+	into the first unit."""
 
-	def next_slide(self, incr=False, **kwargs):
-		"""
-		Override the `next_slide` method to allow incrementing the slide_number when we are in the context of a
-		Presentation. By default, incr is False, meaning that we use next_slide() more as a pause in the
-		animation of a specific slide, rather than a real step in the presentation.
-		"""
-		self.wait(0.1)
-		# Late import to avoid circular import issues
-		from manim_presentations import Presentation
+	def __post_init__(self):
+		if not self.name.isidentifier():
+			raise ValueError(f"chapter name {self.name!r} is not a valid Python identifier")
+		if self.short_title is None:
+			self.short_title = self.title
+		if not self.units:
+			raise ValueError(f"chapter {self.name!r} has no units")
 
-		if incr and type(self.ctx) is Presentation:
-			self.ctx.next_slide(incr=incr, **kwargs)
-		else:
-			super().next_slide(**kwargs)  # Default manim-slides behavior
-
-
-	def setup(self):
-		pass
-
-	def construct(self):
-		ctx = self.ctx
-
-		for i, scene in enumerate(self.scenes):
-			self.current_scene_index = i
-			scene.setup(ctx)
-			scene.construct(ctx)
-			ctx.next_slide(incr=True)
-			scene.tear_down(ctx)
-
-
-	def tear_down(self):
-		# By default, clear the canvas after the chapter is done
-		# print("Clearing canvas for chapter", self.chapter_title)
-		# print(f"Content: {self.inner_canvas.submobjects}")
-		# print(f"Content: {self.ctx.inner_canvas.submobjects}")
-		# print(f"{self.__dict__}")
-		self.ctx.remove(*self.ctx.inner_canvas.submobjects)
+	def __len__(self):
+		return len(self.units)
